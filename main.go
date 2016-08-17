@@ -6,6 +6,7 @@ import "gopkg.in/olebedev/go-duktape.v2"
 import "github.com/boltdb/bolt"
 import "github.com/gorilla/websocket"
 import "github.com/ugorji/go/codec"
+import "crypto/sha1"
 
 func main() {
     db, err := bolt.Open("my.db", 0600, nil)
