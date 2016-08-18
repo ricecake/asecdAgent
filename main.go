@@ -3,7 +3,7 @@ package main
 import "fmt"
 import "log"
 import "os"
-import "github.com/spf13/pflag"
+//import "github.com/spf13/pflag"
 import "gopkg.in/olebedev/go-duktape.v2"
 import "github.com/boltdb/bolt"
 import "github.com/ricecake/asecdAgent/cmd"
