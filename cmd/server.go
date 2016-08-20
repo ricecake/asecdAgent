@@ -16,18 +16,16 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+        "log"
+//      "github.com/spf13/pflag"
+        "gopkg.in/olebedev/go-duktape.v2"
+        "github.com/boltdb/bolt"
+        "github.com/ricecake/asecdAgent/cmd"
+//      "github.com/gorilla/websocket"
+//      "github.com/ugorji/go/codec"
+//      "crypto/sha1"
 )
-import "fmt"
-import "log"
-//import "github.com/spf13/pflag"
-import "gopkg.in/olebedev/go-duktape.v2"
-import "github.com/boltdb/bolt"
-import "github.com/ricecake/asecdAgent/cmd"
-//import "github.com/gorilla/websocket"
-//import "github.com/ugorji/go/codec"
-//import "crypto/sha1"
 
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
