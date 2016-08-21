@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+    "os"
+    "github.com/ricecake/asecdAgent/cmd"
+)
 
 func main() {
     if err := cmd.RootCmd.Execute(); err != nil {
