@@ -16,12 +16,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
         "log"
-//      "github.com/spf13/pflag"
+	"github.com/spf13/cobra"
         "gopkg.in/olebedev/go-duktape.v2"
         "github.com/boltdb/bolt"
 //      "github.com/gorilla/websocket"
+//      "github.com/spf13/pflag"
 //      "github.com/ugorji/go/codec"
 //      "crypto/sha1"
 )

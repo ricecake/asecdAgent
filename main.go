@@ -2,6 +2,7 @@ package main
 
 import (
     "os"
+    "fmt"
     "github.com/ricecake/asecdAgent/cmd"
 )
 
