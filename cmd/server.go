@@ -39,7 +39,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println("server called")
-                db, err := bolt.Open("my.db", 0600, nil)
+                db, err := bolt.Open("asecd.db", 0600, nil)
                 if err != nil {
                   log.Fatal(err)
                 }
