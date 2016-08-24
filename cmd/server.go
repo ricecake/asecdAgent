@@ -16,15 +16,22 @@ package cmd
 
 import (
 	"fmt"
-        "log"
+	"github.com/boltdb/bolt"
 	"github.com/spf13/cobra"
-        "gopkg.in/olebedev/go-duktape.v2"
-        "github.com/boltdb/bolt"
-//      "github.com/gorilla/websocket"
-//      "github.com/spf13/pflag"
-//      "github.com/ugorji/go/codec"
-//      "crypto/sha1"
+	"net/url"
+	"os"
+	"os/signal"
+	"time"
+	//"github.com/spf13/viper"
+	"github.com/gorilla/websocket"
+	"gopkg.in/olebedev/go-duktape.v2"
+	"log"
+	//"github.com/spf13/pflag"
+	//"github.com/ugorji/go/codec"
+	//"crypto/sha1"
 )
+
+var addr string
 
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
@@ -38,17 +45,80 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
+		//addr := viper.GetString("addr")
 		fmt.Println("server called")
-                db, err := bolt.Open("asecd.db", 0600, nil)
-                if err != nil {
-                  log.Fatal(err)
-                }
-                defer db.Close()
-                ctx := duktape.New()
-                ctx.EvalString(`2 + 3`)
-                result := ctx.GetNumber(-1)
-                ctx.Pop()
-                fmt.Println("result is:", result)
+		db, err := bolt.Open("asecd.db", 0600, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		ctx := duktape.New()
+		ctx.EvalString(`2 + 3`)
+		result := ctx.GetNumber(-1)
+		ctx.Pop()
+		fmt.Println("result is:", result)
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt)
+
+		u := url.URL{Scheme: "ws", Host: addr, Path: "/echo"}
+		log.Printf("Address: %s", addr)
+		log.Printf("connecting to %s", u.String())
+
+		c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+		if err != nil {
+			log.Fatal("dial:", err)
+		}
+		defer c.Close()
+
+		done := make(chan struct{})
+
+		go func() {
+			defer c.Close()
+			defer close(done)
+			for {
+				_, message, err := c.ReadMessage()
+				if err != nil {
+					log.Println("read:", err)
+					return
+				}
+				log.Printf("recv: %s", message)
+				err2 := c.WriteMessage(websocket.TextMessage, message)
+				if err2 != nil {
+					log.Println("write:", err2)
+					return
+				}
+			}
+		}()
+
+		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case t := <-ticker.C:
+				err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+				if err != nil {
+					log.Println("write:", err)
+					return
+				}
+			case <-interrupt:
+				log.Println("interrupt")
+				// To cleanly close a connection, a client should send a close
+				// frame and wait for the server to close the connection.
+				err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+				if err != nil {
+					log.Println("write close:", err)
+					return
+				}
+				select {
+					case <-done:
+					case <-time.After(time.Second):
+				}
+				c.Close()
+				return
+			}
+		}
+
 	},
 }
 
@@ -64,5 +134,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	serverCmd.Flags().StringVarP(&addr, "addr", "a", "localhost:8080", "service address")
 
 }
