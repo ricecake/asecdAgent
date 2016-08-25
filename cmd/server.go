@@ -51,7 +51,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer db.Close()
+		db.Close()
 		ctx := duktape.New()
 		ctx.EvalString(`2 + 3`)
 		result := ctx.GetNumber(-1)
@@ -90,17 +90,14 @@ to quickly create a Cobra application.`,
 			}
 		}()
 
-		ticker := time.NewTicker(time.Second)
-		defer ticker.Stop()
+                err2 := c.WriteMessage(websocket.TextMessage, []byte("Test!"))
+                if err2 != nil {
+                        log.Println("write:", err)
+                        return
+                }
 
 		for {
 			select {
-			case t := <-ticker.C:
-				err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
-				if err != nil {
-					log.Println("write:", err)
-					return
-				}
 			case <-interrupt:
 				log.Println("interrupt")
 				// To cleanly close a connection, a client should send a close
