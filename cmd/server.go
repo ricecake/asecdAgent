@@ -36,27 +36,17 @@ var addr string
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Runs the daemon in server mode",
+	Long: `Runs the asecdClient as a script execution daemon.
+Will connect to the remote job control server, and wait to be passed work to exectute`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		//addr := viper.GetString("addr")
 		fmt.Println("server called")
 		db, err := bolt.Open("asecd.db", 0600, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 		db.Close()
-		ctx := duktape.New()
-		ctx.EvalString(`2 + 3`)
-		result := ctx.GetNumber(-1)
-		ctx.Pop()
-		fmt.Println("result is:", result)
+
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt)
 
@@ -71,17 +61,19 @@ to quickly create a Cobra application.`,
 		defer c.Close()
 
 		done := make(chan struct{})
+		messageChannel := make(chan []byte)
 
 		go func() {
 			defer c.Close()
 			defer close(done)
+			defer close(messageChannel)
 			for {
 				_, message, err := c.ReadMessage()
 				if err != nil {
 					log.Println("read:", err)
 					return
 				}
-				log.Printf("recv: %s", message)
+				messageChannel <- message
 				err2 := c.WriteMessage(websocket.TextMessage, message)
 				if err2 != nil {
 					log.Println("write:", err2)
@@ -98,6 +90,16 @@ to quickly create a Cobra application.`,
 
 		for {
 			select {
+			case message := <- messageChannel:
+				go func(){
+					ctx := duktape.New()
+					defer ctx.DestroyHeap()
+					ctx.EvalString(`2 + 3`)
+					result := ctx.GetNumber(-1)
+					ctx.Pop()
+					fmt.Println("result is:", result)
+					log.Printf("Recv: %s", message)
+				}()
 			case <-interrupt:
 				log.Println("interrupt")
 				// To cleanly close a connection, a client should send a close
