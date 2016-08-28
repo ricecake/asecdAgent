@@ -22,11 +22,9 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	//"github.com/spf13/viper"
 	"github.com/gorilla/websocket"
 	"gopkg.in/olebedev/go-duktape.v2"
 	"log"
-	//"github.com/spf13/pflag"
 	//"github.com/ugorji/go/codec"
 	//"crypto/sha1"
 )
@@ -123,16 +121,6 @@ Will connect to the remote job control server, and wait to be passed work to exe
 
 func init() {
 	RootCmd.AddCommand(serverCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	serverCmd.Flags().StringVarP(&addr, "addr", "a", "localhost:8080", "service address")
 
 }
