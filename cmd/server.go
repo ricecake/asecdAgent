@@ -80,12 +80,6 @@ Will connect to the remote job control server, and wait to be passed work to exe
 			}
 		}()
 
-                err2 := c.WriteMessage(websocket.TextMessage, []byte("Test!"))
-                if err2 != nil {
-                        log.Println("write:", err)
-                        return
-                }
-
 		for {
 			select {
 			case message := <- messageChannel:
