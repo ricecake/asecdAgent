@@ -84,6 +84,8 @@ Will connect to the remote job control server, and wait to be passed work to exe
 			select {
 			case message := <- messageChannel:
 				go func(){
+// Pass a communication channel to the coroutine that it can use to request resources
+// Of the write thread by passing it's own channel along for the return
 					ctx := duktape.New()
 					defer ctx.DestroyHeap()
 					ctx.EvalString(`2 + 3`)
