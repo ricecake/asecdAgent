@@ -38,18 +38,16 @@ var serverCmd = &cobra.Command{
 	Long: `Runs the asecdClient as a script execution daemon.
 Will connect to the remote job control server, and wait to be passed work to exectute`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("server called")
 		db, err := bolt.Open("asecd.db", 0600, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
-		db.Close()
+		defer db.Close()
 
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt)
 
 		u := url.URL{Scheme: "ws", Host: addr, Path: "/echo"}
-		log.Printf("Address: %s", addr)
 		log.Printf("connecting to %s", u.String())
 
 		c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -86,7 +84,7 @@ Will connect to the remote job control server, and wait to be passed work to exe
 				go func(){
 // Pass a communication channel to the coroutine that it can use to request resources
 // Of the write thread by passing it's own channel along for the return
-Comm := make(chan strict{})
+Comm := make(chan struct{})
 defer close(Comm)
 
 					ctx := duktape.New()
