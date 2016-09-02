@@ -25,8 +25,8 @@ import (
 	"github.com/gorilla/websocket"
 	"gopkg.in/olebedev/go-duktape.v2"
 	"log"
-	//"github.com/ugorji/go/codec"
-	//"crypto/sha1"
+	"github.com/ugorji/go/codec"
+	"crypto/sha1"
 )
 
 var addr string
