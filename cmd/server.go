@@ -31,7 +31,6 @@ import (
 
 var addr string
 
-// serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Runs the daemon in server mode",
